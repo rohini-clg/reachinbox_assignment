@@ -1,31 +1,36 @@
 "use client"
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Clock, Send, Plus, Mail } from 'lucide-react';
+import { Clock, Send, Plus, Mail, Activity } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 
 const Sidebar = () => {
     const pathname = usePathname();
 
+    const { data: session } = useSession();
     const navItems = [
-        { name: 'Scheduled', icon: Clock, path: '/dashboard', count: 12 },
-        { name: 'Sent', icon: Send, path: '/dashboard/sent', count: 785 },
+        { name: 'Scheduled', icon: Clock, path: '/dashboard' },
+        { name: 'Sent', icon: Send, path: '/dashboard/sent' },
+        { name: 'Queue', icon: Activity, path: '/dashboard/queue' },
     ];
+    const user = session?.user;
+    const initials = user?.name?.trim().charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || '?';
 
     return (
         <div className="w-64 h-screen border-r border-gray-100 p-6 flex flex-col gap-8 bg-[#fcfcfc]">
             <div className="flex items-center gap-2 px-2">
                 <Mail className="w-8 h-8 text-[#00a854]" />
-                <span className="text-2xl font-bold">ONG</span>
+                <span className="text-2xl font-bold">ReachInbox</span>
             </div>
 
             <div className="flex flex-col gap-1">
                 <div className="bg-gray-50 rounded-lg p-3 flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
-                        <img src="https://ui-avatars.com/api/?name=Oliver+Brown" alt="avatar" />
+                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-semibold">
+                        {initials}
                     </div>
                     <div>
-                        <p className="font-semibold text-sm">Oliver Brown</p>
-                        <p className="text-xs text-gray-500">oliver.brown@domain.io</p>
+                        <p className="font-semibold text-sm">{user?.name || 'Signed in user'}</p>
+                        <p className="text-xs text-gray-500">{user?.email}</p>
                     </div>
                 </div>
 
@@ -49,7 +54,6 @@ const Sidebar = () => {
                             <item.icon size={18} />
                             <span className="font-medium">{item.name}</span>
                         </div>
-                        <span className="text-xs text-gray-400">{item.count}</span>
                     </Link>
                 ))}
             </div>

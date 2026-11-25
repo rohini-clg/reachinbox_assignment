@@ -1,6 +1,5 @@
 "use client"
 import { useEffect, useState, use } from 'react';
-import { useRouter } from 'next/navigation';
 import { ArrowLeft, Star, Trash2, Archive } from 'lucide-react';
 import Link from 'next/link';
 import axios from 'axios';
@@ -20,7 +19,6 @@ interface Email {
 }
 
 export default function EmailDetailPage({ params }: { params: Promise<{ id: string }> }) {
-    const router = useRouter();
     const [email, setEmail] = useState<Email | null>(null);
     const [loading, setLoading] = useState(true);
     const unwrappedParams = use(params);
@@ -28,7 +26,7 @@ export default function EmailDetailPage({ params }: { params: Promise<{ id: stri
     useEffect(() => {
         const fetchEmail = async () => {
             try {
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'}/emails/${unwrappedParams.id}`);
+                const response = await axios.get(`/api/emails/${encodeURIComponent(unwrappedParams.id)}`);
                 setEmail(response.data);
             } catch (error) {
                 console.error('Failed to fetch email:', error);

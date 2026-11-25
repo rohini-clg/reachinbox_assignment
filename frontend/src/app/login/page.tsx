@@ -1,60 +1,44 @@
-"use client";
+'use client';
 
-import { Mail, Lock, Search } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { signIn } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useState } from 'react';
+
+function LoginContent() {
+    const searchParams = useSearchParams();
+    const [loading, setLoading] = useState(false);
+    const error = searchParams.get('error');
+
+    return (
+        <main className="min-h-screen bg-gray-900/90 flex items-center justify-center p-4">
+            <section className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-12 flex flex-col items-center gap-8">
+                <h1 className="text-4xl font-bold text-gray-800">Login</h1>
+                <p className="text-center text-gray-500">Sign in with your Google account to access your email scheduler.</p>
+                {error && (
+                    <p role="alert" className="w-full rounded-lg bg-red-50 p-3 text-sm text-red-700">
+                        Google sign-in failed. Check the OAuth configuration and try again.
+                    </p>
+                )}
+                <button
+                    type="button"
+                    disabled={loading}
+                    onClick={() => {
+                        setLoading(true);
+                        void signIn('google', { callbackUrl: '/dashboard' }).catch(() => setLoading(false));
+                    }}
+                    className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-green-50 text-[#00a854] rounded-lg font-semibold hover:bg-green-100 transition-colors border border-green-100 disabled:opacity-50"
+                >
+                    {loading ? 'Redirecting to Google…' : 'Continue with Google'}
+                </button>
+            </section>
+        </main>
+    );
+}
 
 export default function LoginPage() {
-    const router = useRouter();
-
-    const handleLogin = (e?: React.FormEvent) => {
-        e?.preventDefault();
-        router.push('/dashboard');
-    };
-    
     return (
-        <div className="min-h-screen bg-gray-900/90 flex items-center justify-center p-4">
-            <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-12 flex flex-col items-center gap-12">
-                <h1 className="text-4xl font-bold text-gray-800">Login</h1>
-
-                <button
-                    onClick={() => handleLogin()}
-                    className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-green-50 text-[#00a854] rounded-lg font-semibold hover:bg-green-100 transition-colors border border-green-100"
-                >
-                    <img src="https://www.google.com/favicon.ico" alt="google" className="w-4 h-4" />
-                    Login with Google
-                </button>
-
-                <div className="w-full flex items-center gap-4 text-xs text-gray-300">
-                    <div className="flex-1 h-px bg-gray-100"></div>
-                    <span>or sign up through email</span>
-                    <div className="flex-1 h-px bg-gray-100"></div>
-                </div>
-
-                <form onSubmit={handleLogin} className="w-full flex flex-col gap-6">
-                    <div className="relative">
-                        <input
-                            type="text"
-                            placeholder="Email ID"
-                            className="w-full bg-gray-50 border-none rounded-xl py-4 px-6 outline-none text-gray-600 focus:ring-1 focus:ring-green-500"
-                        />
-                    </div>
-                    <div className="relative">
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            className="w-full bg-gray-50 border-none rounded-xl py-4 px-6 outline-none text-gray-600 focus:ring-1 focus:ring-green-500"
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="w-full py-4 bg-[#00a854] text-white rounded-xl font-bold hover:bg-[#008c45] transition-all text-center shadow-lg shadow-green-100"
-                    >
-                        Login
-                    </button>
-                </form>
-            </div>
-        </div>
+        <Suspense fallback={<main className="min-h-screen bg-gray-900/90" />}>
+            <LoginContent />
+        </Suspense>
     );
 }
